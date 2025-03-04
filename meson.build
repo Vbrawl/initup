@@ -9,4 +9,7 @@ configure_file(
   }
 )
 
-executable(meson.project_name() + '-init', 'src/initup-init.c', 'src/utils.c')
+executable(
+  meson.project_name() + '-init',
+  'src/initup-init.c', 'src/utils.c',
+  link_args: ['-static'])

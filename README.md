@@ -47,3 +47,16 @@ Start an initup service
 # initup-stop
 
 Stop an initup service
+
+# /etc/fstab option support
+
+We currently support the following options:
+
+| Default  | Activator | Deactivator | Description |
+|----------|-----------|-------------|--------------------------------------------------------------|
+| defaults | defaults  |             | Specifically setting this option helps save a few CPU cycles |
+| auto     | auto      | noauto      | Wether to automatically mount this entry at boot             |
+| rw       | rw        | ro          | Wether to mount as read-write or readonly                    |
+| exec     | exec      | noexec      | Wether to allow execution of files in this mount             |
+| suid     | suid      | nosuid      | Wether to allow the suid-bit in this mount                   |
+| user     | user      | nouser      | Wether to allow users to mount this mount or not             |

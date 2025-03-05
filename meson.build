@@ -1,6 +1,6 @@
 
 
-project('initup', 'c', version: '0.0.1')
+project('initup', 'c', version: '0.0.1', default_options: ['b_ndebug=if-release'])
 
 configure_file(
   output: 'config.h',
@@ -11,5 +11,5 @@ configure_file(
 
 executable(
   meson.project_name() + '-init',
-  'src/initup-init.c', 'src/utils.c',
+  'src/initup-init.c', 'src/utils.c', 'src/mountentry.c',
   link_args: ['-static'])

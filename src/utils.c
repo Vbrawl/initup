@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include <linux/reboot.h>
 #include <sys/reboot.h>
+#include <sys/stat.h>
 
 
 void println(int fd, const char *msg) {
@@ -31,4 +32,27 @@ void halt(int fd, const char *msg) {
   close(fd);
   sync();
   while(1) {}
+}
+
+dev_t devfrompath(const char *path) {
+  struct stat s;
+
+  if(lstat(path, &s) != 0) {
+    return -1;
+  }
+
+  return s.st_dev;
+}
+
+int is_swap(const char *type) {
+  return strncmp(type, "swap", 4) == 0;
+}
+
+int is_dir(const char *path) {
+  struct stat s;
+
+  if(lstat(path, &s) != 0) {
+    return 0;
+  }
+  return S_ISDIR(s.st_mode);
 }

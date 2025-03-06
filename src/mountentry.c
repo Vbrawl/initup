@@ -82,6 +82,6 @@ const char *prefixmountpoint(const char *prefix, const char *mountpoint) {
   return pmountpoint;
 }
 
-int is_swap(const char *type) {
-  return strncmp(type, "swap", 4);
+void movemnt(const char *from, const char *to) {
+  mount(from, to, NULL, MS_MOVE, NULL);
 }

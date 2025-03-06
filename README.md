@@ -31,6 +31,13 @@ ln -s /sbin/initup-serviced /sbin/init
 The init system bootstrapper, mounts the whole root filesystem and passes
 control to /sbin/init
 
+Steps:
+1) mount /etc/fstab entries under a prefix directory (make a sysroot)
+2) remove everything under initramfs (free unused space)
+3) mount-move /prefix to /
+4) chroot to ensure access to /
+5) Execute the new /sbin/init as PID 1
+
 # initup-gen
 
 Initramfs generator, bundles /etc/fstab and initup-init to a cpio archive

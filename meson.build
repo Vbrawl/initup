@@ -11,5 +11,5 @@ configure_file(
 
 executable(
   meson.project_name() + '-init',
-  'src/initup-init.c', 'src/utils.c', 'src/mountentry.c',
+  'src/initup-init.c', 'src/utils.c', 'src/mountentry.c', 'src/routines.c',
   link_args: ['-static'])

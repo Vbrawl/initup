@@ -13,3 +13,8 @@ executable(
   meson.project_name() + '-init',
   'src/initup-init.c', 'src/utils.c', 'src/mountentry.c', 'src/routines.c',
   link_args: ['-static'])
+
+executable(
+  meson.project_name() + '-gen',
+  'initup-gen/src/initup-gen.c', 'initup-gen/src/cpio.c'
+)

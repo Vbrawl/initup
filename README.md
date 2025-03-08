@@ -45,7 +45,7 @@ to be used as initramfs
 
 # initup-serviced
 
-Service Manager. Start, stop and overall manage initup services
+Service Manager. Automatically start services and only quit if all services complete.
 
 # initup-start
 
@@ -67,3 +67,27 @@ We currently support the following options:
 | exec     | exec      | noexec      | Wether to allow execution of files in this mount             |
 | suid     | suid      | nosuid      | Wether to allow the suid-bit in this mount                   |
 | user     | user      | nouser      | Wether to allow users to mount this mount or not             |
+
+# Service format
+
+A service is basically a directory with some scripts/programs inside.
+
+services directory: `/etc/initup/services/`
+
+Possible executables:
+
+* `autostart` - Automatically executed at boot
+
+Example `vt-launcher` service:
+
+File `/etc/initup/services/vt-launcher/autostart`:
+```sh
+#!/bin/sh
+openvt -c 1 -- getty tty1
+openvt -c 2 -- getty tty2
+openvt -c 3 -- getty tty3
+openvt -c 4 -- getty tty4
+openvt -c 5 -- getty tty5
+openvt -c 6 -- getty tty6
+exec openvt -c 7 -- getty tty7
+```

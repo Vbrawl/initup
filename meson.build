@@ -18,3 +18,8 @@ executable(
   meson.project_name() + '-gen',
   'initup-gen/src/initup-gen.c', 'initup-gen/src/cpio.c'
 )
+
+executable(
+  meson.project_name() + '-serviced',
+  'initup-serviced/src/initup-serviced.c', 'initup-serviced/src/service.c', 'initup-serviced/src/linked_list.c'
+)

@@ -12,14 +12,16 @@ configure_file(
 executable(
   meson.project_name() + '-init',
   'src/initup-init.c', 'src/utils.c', 'src/mountentry.c', 'src/routines.c',
-  link_args: ['-static'])
+  link_args: ['-static'], install: true, install_dir: '/sbin')
 
 executable(
   meson.project_name() + '-gen',
-  'initup-gen/src/initup-gen.c', 'initup-gen/src/cpio.c'
+  'initup-gen/src/initup-gen.c', 'initup-gen/src/cpio.c',
+  install: true, install_dir: '/bin'
 )
 
 executable(
   meson.project_name() + '-serviced',
-  'initup-serviced/src/initup-serviced.c', 'initup-serviced/src/service.c', 'initup-serviced/src/linked_list.c'
+  'initup-serviced/src/initup-serviced.c', 'initup-serviced/src/service.c', 'initup-serviced/src/linked_list.c',
+  install: true, install_dir: '/sbin'
 )

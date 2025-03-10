@@ -5,10 +5,10 @@
 #include <sys/stat.h>
 
 
-void println(int fd, const char *msg) {
-  write(fd, msg, strlen(msg));
-  write(fd, "\r\n", 2);
-}
+// void println(int fd, const char *msg) {
+//   write(fd, msg, strlen(msg));
+//   write(fd, "\r\n", 2);
+// }
 
 int strncmp(const char *s1, const char *s2, size_t size) {
   for (size_t i = 0; i < size; i++) {
@@ -28,8 +28,6 @@ size_t strconcat(char *dest, const char *src, size_t dest_offset, size_t src_siz
 }
 
 void halt(int fd, const char *msg) {
-  println(fd, msg);
-  close(fd);
   sync();
   while(1) {}
 }

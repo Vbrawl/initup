@@ -3,6 +3,7 @@
 #include <sys/types.h>
 #include <sys/mount.h>
 #include <errno.h>
+#include <sys/stat.h>
 
 #include "../include/utils.h"
 #include "../include/mountentry.h"
@@ -14,48 +15,39 @@
 #define INIT_SCRIPT "/sbin/init"
 
 int main() {
-  int console = open("/dev/console", O_RDWR);
+  dev_t id = 0;
 
-  // Mount /dev to be able to access other devices
-  println(console, "Loading /dev...");
-  if(mount(NULL, "/dev", "devtmpfs", MS_RDONLY, NULL) != 0) {
-    println(console, strerror(errno));
-    halt(console, "Can't mount /dev");
-  }
+  // Ensure prefix exists
+  mkdir(MOUNT_PREFIX, 0777);
 
-  // Load and mount /etc/fstab entries
-  println(console, "Loading /etc/fstab...");
-  mount_fstab(console, FSTAB_PATH, MOUNT_PREFIX);
+  // Load fstab file
+  // NOTE: umount and rmdir are not critical
+  mkdir("/dev", 0777);
+  if(mount(NULL, "/dev", "devtmpfs", MS_RDONLY, NULL) != 0)
+    halt();
+  mount_fstab(FSTAB_PATH, MOUNT_PREFIX);
+  umount("/dev");
+  rmdir("/dev");
 
-  // Delete everything
-  println(console, "Deleting all initramfs contents...");
-  dev_t id = devfrompath("/");
-  if(id == -1) {
-    halt(console, "Can't find rootfs???");
-  }
-  purge_device(console, "/", id);
+  // Delete initramfs (Not a critical operation!)
+  id = devfrompath("/");
+  if(id != -1)
+    if(purge_device("/", id) != 0)
+      halt();
 
-  // Unmount /dev since we don't need it any more
-  if(umount("/dev") != 0) {
-    println(console, strerror(errno));
-    halt(console, "Can't unmount /dev");
-  }
+  // Relocate disk to rootfs
+  if(chdir(MOUNT_PREFIX) != 0)
+    halt();
+  if(movemnt(".", "/") != 0)
+    halt();
+  if(chroot(".") != 0)
+    halt();
 
-  // Move root to / and chroot to it
-  println(console, "Moving root...");
-  chdir(MOUNT_PREFIX);
-  movemnt(".", "/");
-  chroot(".");
-
-  // Start /init as PID 1
-  println(console, "Start " INIT_SCRIPT " as PID 1");
-  close(console);
-
+  // Start init as PID 1
   char *init_parameters[2];
   init_parameters[0] = INIT_SCRIPT;
   init_parameters[1] = NULL;
-
   execv(INIT_SCRIPT, init_parameters);
-  halt(console, "Can't start " INIT_SCRIPT);
+
   return 0;
 }

@@ -11,44 +11,42 @@
 #include "../include/utils.h"
 
 
-void mount_fstab(int console, const char *fstab_path, const char *prefix) {
+int mount_fstab(const char *fstab_path, const char *prefix) {
   FILE *fstab = setmntent(fstab_path, "r");
   struct mntent *entry = NULL;
 
   while((entry = getmntent(fstab)) != NULL) {
-    debug_println(console, entry->mnt_fsname);
-    if(hasmntopt(entry, MNTOPT_NOAUTO) != NULL) {
-      debug_println(console, MNTOPT_NOAUTO " - Skipping!");
+    if(hasmntopt(entry, MNTOPT_NOAUTO) != NULL)
       continue;
-    }
 
     unsigned long opts = parsemountflags(entry);
     const char *dev = findmntdev(entry->mnt_fsname);
 
     if(dev == NULL) {
       endmntent(fstab);
-      halt(console, "Device not found!");
+      return -1;
     }
 
     if(is_swap(entry->mnt_type)) {
       if(swapon(dev, 0) != 0) {
         endmntent(fstab);
-        halt(console, "Can't mount swap");
+        return -1;
       }
     }
     else {
       const char *mountpoint = prefixmountpoint(prefix, entry->mnt_dir);
       if(mount(dev, mountpoint, entry->mnt_type, opts, entry->mnt_opts) != 0) {
         endmntent(fstab);
-        halt(console, "Can't mount device");
+        return -1;
       }
     }
   }
 
   endmntent(fstab);
+  return 0;
 }
 
-void purge_device(int console, const char *path, dev_t rootdev) {
+int purge_device(const char *path, dev_t rootdev) {
   char next_path[PATH_MAX];
   size_t offset = 0;
 
@@ -56,12 +54,11 @@ void purge_device(int console, const char *path, dev_t rootdev) {
   struct dirent *d;
   size_t dsize;
 
-  debug_println(console, path);
-  if(!is_dir(path)) halt(console, "purge_device: path is not a directory!");
-  if(devfrompath(path) != rootdev) return;
+  if(!is_dir(path)) return -1;
+  if(devfrompath(path) != rootdev) return 0;
 
   dir = opendir(path);
-  if(dir == NULL) return;
+  if(dir == NULL) return 0;
 
   while((d = readdir(dir)) != NULL) {
     dsize = strlen(d->d_name);
@@ -74,25 +71,16 @@ void purge_device(int console, const char *path, dev_t rootdev) {
     }
     strconcat(next_path, d->d_name, offset, dsize);
 
-    if(is_dir(next_path)) {
-      purge_device(console, next_path, rootdev);
-    }
-    else {
-      debug_println(console, next_path);
-      if(unlink(next_path) != 0) {
-        debug_println(console, strerror(errno));
-        halt(console, "Can't unlink");
-      }
-    }
+    if(is_dir(next_path))
+      purge_device(next_path, rootdev);
+    else if(unlink(next_path) != 0)
+      return -1;
   }
   closedir(dir);
 
-  debug_println(console, path);
-  if(rmdir(path) != 0) {
+  if(rmdir(path) != 0)
     // If path != /
-    if(strlen(path) != 1 || path[0] != '/') {
-      debug_println(console, strerror(errno));
-      halt(console, "Can't remove directory");
-    }
-  }
+    if(strlen(path) != 1 || path[0] != '/')
+      return -1;
+  return 0;
 }

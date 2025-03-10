@@ -82,6 +82,6 @@ const char *prefixmountpoint(const char *prefix, const char *mountpoint) {
   return pmountpoint;
 }
 
-void movemnt(const char *from, const char *to) {
+int movemnt(const char *from, const char *to) {
   mount(from, to, NULL, MS_MOVE, NULL);
 }

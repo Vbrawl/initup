@@ -10,6 +10,6 @@
 const char *findmntdev(const char *fsname);
 unsigned long parsemountflags(struct mntent *opts);
 const char *prefixmountpoint(const char *prefix, const char *mountpoint);
-void movemnt(const char *from, const char *to);
+int movemnt(const char *from, const char *to);
 
 #endif

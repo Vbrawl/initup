@@ -32,7 +32,7 @@ int generate_cpio(struct cpio *cpio, const char *realpath, const char *path) {
 
   // Setup data and path lengths
   cpio->data.psize = strlen(path);
-  cpio->data.dsize = s.st_size;
+  cpio->data.dsize = S_ISDIR(s.st_mode) ? 0 : s.st_size;
 
   // Setup header
   memcpy(cpio->header.magic, NEWC_MAGIC, sizeof(cpio->header.magic));
